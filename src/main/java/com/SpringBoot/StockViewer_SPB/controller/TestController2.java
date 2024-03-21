@@ -26,8 +26,8 @@ public class TestController2 {
 
 	@PostMapping("/upload-csv")
 	public ResponseEntity<Map<String, Object>> uploadCSV(@RequestParam("file") MultipartFile file) {
-
-		System.out.println("call endpoint");
+		
+		long startTime = System.currentTimeMillis();
 
 		Map<String, Object> response = new HashMap();
 		try {
@@ -49,7 +49,13 @@ public class TestController2 {
 				response.put("success", false);
 				response.put("message", "Failed to process the file.");
 			}
+			
+			long endTime = System.currentTimeMillis();
+	        long elapsedTime = endTime - startTime;
+	        System.out.println("upload csv endpoint Execution time: " + elapsedTime + "ms");
+	        
 			return ResponseEntity.ok().body(response);
+			
 		} catch (Exception e) {
 			response.put("success", false);
 			response.put("message", "An error occurred while uploading the file.");
@@ -59,50 +65,75 @@ public class TestController2 {
 
 	@RequestMapping("/home")
 	public String home() {
+		long startTime = System.currentTimeMillis();
+		long endTime = System.currentTimeMillis();
+        long elapsedTime = endTime - startTime;
+		System.out.println("home endpoint Execution time: " + elapsedTime + "ms");
 		return "Upload";
 	}
 
 	@RequestMapping("fetchAllData")
 	public String fetchAllData(Model model) {
 
+		long startTime = System.currentTimeMillis();
 		List<Object[]> allOHLCDataWithStock = stockService2.getAllData();
 
 		model.addAttribute("allDataListOfObjectArray", allOHLCDataWithStock);
 
+		long endTime = System.currentTimeMillis();
+        long elapsedTime = endTime - startTime;
+        System.out.println("DateRange Search Execution time: " + elapsedTime + "ms");
 		return "Details";
 	}
 	
 	@RequestMapping("fetchLatestUnique")
 	public String fetchOnlyLatestUniqueStockRecords(Model model) {
+		
+		long startTime = System.currentTimeMillis();
 
 		List<Object[]> onlyLatestDetails = stockService2.fetchOnlyLatestUniqueStockRecords();
 
 		model.addAttribute("onlyLatestDetails", onlyLatestDetails);
-
-		System.out.println(onlyLatestDetails);
+		
+		long endTime = System.currentTimeMillis();
+        long elapsedTime = endTime - startTime;
+        System.out.println("latest unique records Search Execution time: " + elapsedTime + "ms");
 		return "latestDetailsOnly";
 	}
 
 	@RequestMapping("fetchDataBySymbol")
 	public ResponseEntity<List<Object[]>> fetchDataBySymbol(@RequestParam String symbol) {
+		
+		long startTime = System.currentTimeMillis();
 
 		List<Object[]> allDataOfSpecificSymbol = stockService2.getAllDataOfSpecificSymbol(symbol);
 
+		long endTime = System.currentTimeMillis();
+        long elapsedTime = endTime - startTime;
+        System.out.println("DateRange Search Execution time: " + elapsedTime + "ms");
+        
 		return ResponseEntity.ok(allDataOfSpecificSymbol);
 	}
 	
 	@RequestMapping("fetchDataBySymbolOnlyLatest")
 	public ResponseEntity<List<Object[]>> fetchDataBySymbolOnlyLatest(@RequestParam String symbol) {
 
+		long startTime = System.currentTimeMillis();
+		
 		List<Object[]> allLatestDataOfSpecificSymbol = stockService2.getAllDataOfSpecificSymbolOnlyLatest(symbol);
 
-
+		long endTime = System.currentTimeMillis();
+        long elapsedTime = endTime - startTime;
+        System.out.println("Symbol search Execution time: " + elapsedTime + "ms");
+        
 		return ResponseEntity.ok(allLatestDataOfSpecificSymbol);
 	}
 	
 	@RequestMapping("fetchDataByDateRange")
 	public ResponseEntity<List<Object[]>> fetchDataByDateRange(@RequestParam("startDate")String startDate,
 	                                                            @RequestParam("endDate") String endDate) {
+		
+		long startTime = System.currentTimeMillis();
 		
 	    try {
 	    	
@@ -114,6 +145,11 @@ public class TestController2 {
 	        Date parsedEndDate = dateFormat.parse(endDate);
 	    	
 	        List<Object[]> dataInRange = stockService2.getDataByDateRange(parsedStartDate, parsedEndDate);
+	        
+	        long endTime = System.currentTimeMillis();
+	        long elapsedTime = endTime - startTime;
+	        System.out.println("DateRange Search Execution time: " + elapsedTime + "ms");
+	        
 	        return ResponseEntity.ok(dataInRange);
 	        
 	    } catch (Exception e) {
@@ -126,10 +162,16 @@ public class TestController2 {
 	@RequestMapping("view_chart")
 	public String viewChart(@RequestParam String stockSymbol , Model model) {
 		
+		long startTime = System.currentTimeMillis();
+		
 		List<Object[]> allDataOfSpecificSymbol = stockService2.getAllDataOfSpecificSymbol(stockSymbol);  
 		
 		System.out.println("view chart list of object:  "+allDataOfSpecificSymbol);
 		model.addAttribute("allDataOfSpecificSymbol", allDataOfSpecificSymbol);
+		
+		long endTime = System.currentTimeMillis();
+        long elapsedTime = endTime - startTime;
+        System.out.println("view chart Execution time: " + elapsedTime + "ms");
 		return "viewChart";      
 	}
 
