@@ -15,6 +15,10 @@ public interface OhlcRepo extends JpaRepository<OHLC, Long> {
 	@Query("SELECT o, s FROM OHLC o JOIN o.stock s")
 	List<Object[]> getAllOHLCDataWithStock();
 	
+	
+	@Query("SELECT o FROM OHLC o WHERE o.stock.id = ?1 AND o.timestamp = ?2 ")
+	OHLC findOHLCByStockIdAndTimestamp(Long id , Date timestamp);
+	
 	@Query("SELECT o, s " +
 		       "FROM OHLC o " +
 		       "JOIN Stock s ON s.id = o.stock.id " +
@@ -39,15 +43,18 @@ public interface OhlcRepo extends JpaRepository<OHLC, Long> {
 	List<Object[]> getAllDataOfSpecificSymbolOnlyLatest(String symbol);
 	
 	
-	
-	@Query( "SELECT o, s " +
-		       "FROM OHLC o " +
-		       "JOIN Stock s ON s.id = o.stock.id " +
-		       "WHERE o.timestamp >= ?1 AND o.timestamp <= ?2 AND (o.stock.id, o.timestamp) IN (" +
-		       "    SELECT o2.stock.id, MAX(o2.timestamp) " +
-		       "    FROM OHLC o2 " +
-		       "    GROUP BY o2.stock.id" +
-		       ")")
-	List<Object[]> getDataByDateRange(@Param("startDate") Date startDate, @Param("endDate") Date endDate);
+	 @Query("SELECT o, s " +
+	           "FROM OHLC o " +
+	           "JOIN FETCH o.stock s " +
+	           "WHERE o.timestamp >= :startDate AND o.timestamp <= :endDate " +
+	           "AND (o.stock.id, o.timestamp) IN (" +
+	           "    SELECT o2.stock.id, MAX(o2.timestamp) " +
+	           "    FROM OHLC o2 " +
+	           "    WHERE o2.timestamp >= :startDate AND o2.timestamp <= :endDate " +
+	           "    GROUP BY o2.stock.id" +
+	           ")")
+	    List<Object[]> getDataByDateRange(
+	            @Param("startDate") Date startDate, @Param("endDate") Date endDate);
+
 
 }
